@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주관적 기억감퇴 (SMCQ) 자가진단</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        :root {
+            /* 색상 팔레트 정의 */
+            --primary-color: #0077b6; /* 메인 색상 (진한 파랑) */
+            --secondary-color: #00b4d8; /* 보조 색상 (하늘색) */
+            --accent-color: #ffbe0b; /* 강조 색상 (노랑) */
+            --background-light: #f4f9ff; /* 밝은 배경 */
+            --text-dark: #333; /* 어두운 글자 */
+            --text-light: #fff; /* 밝은 글자 */
+            --border-light: #e0e0e0;
+            --success-color: #2a9d8f;
+            --warning-color: #e9c46a;
+            --danger-color: #e76f51;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            padding: 25px;
+            max-width: 650px;
+            margin: 0 auto;
+            text-align: center;
+            line-height: 1.6;
+        }
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 40px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+        }
+        
+        /* 메인 컨테이너 */
+        #test-content {
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            padding: 30px;
+            min-height: 380px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 20px;
+            transition: all 0.5s ease-in-out;
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .fade-out { opacity: 0; transform: translateY(-20px); }
+        .fade-in { opacity: 0; transform: translateY(20px); animation: fadeInAnim 0.5s forwards; }
+        @keyframes fadeInAnim { to { opacity: 1; transform: translateY(0); } }
+
+        .question-text {
+            font-size: 1.6em;
+            font-weight: 500;
+            margin-bottom: 30px;
+            text-align: left;
+            color: var(--primary-color);
+            line-height: 1.7;
+        }
+        .question-meta {
+            font-size: 1.1em;
+            color: #888;
+            margin-bottom: 15px;
+            font-weight: 300;
+        }
+        
+        /* 답변 옵션 (예/아니오) */
+        .options {
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+        }
+        .options label {
+            flex-grow: 1;
+            background-color: #f7faff;
+            border: 2px solid var(--secondary-color);
+            border-radius: 10px;
+            padding: 15px 10px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 1.4em;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            display: block;
+        }
+        .options label:hover {
+            background-color: var(--secondary-color);
+            color: var(--text-light);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .options input[type="radio"] { display: none; }
+        .options input[type="radio"]:checked + span {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            display: block;
+            padding: 15px 10px;
+            transform: translateY(0);
+        }
+        .options input[type="radio"]:checked + span::before { content: '✔️ '; margin-right: 5px; color: var(--accent-color); }
+
+        /* 버튼 스타일 */
+        .action-btn {
+            width: 100%;
+            padding: 18px;
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            border: none;
+            border-radius: 10px;
+            font-size: 1.4em;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+        .action-btn:hover:not(:disabled) {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        .action-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* 결과 화면 */
+        #result-container {
+            padding: 40px 30px;
+            background-color: #f0f8ff;
+            border: 2px solid #b3e0ff;
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: left;
+        }
+        #result-container i {
+            font-size: 3.5em;
+            color: var(--success-color);
+            margin-bottom: 25px;
+        }
+        #result-text {
+            font-size: 1.9em;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            line-height: 1.5;
+            text-align: center;
+        }
+        #result-score {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        #result-advice {
+            font-size: 1.2em;
+            line-height: 1.8;
+            text-align: left;
+            max-width: 500px;
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #e9f5ff;
+            border-left: 5px solid var(--secondary-color);
+        }
+        #result-advice strong {
+            color: var(--danger-color); /* 강조할 부분 색상 변경 */
+        }
+        .result-btn-reload {
+            background-color: var(--danger-color);
+        }
+        .result-btn-reload:hover:not(:disabled) {
+            background-color: #d64a30;
+        }
+        /* 추가된 조언 박스 내부 스타일 */
+        .center-advice-box {
+            margin-top: 20px;
+            padding-left: 10px; 
+            border-left: 3px solid var(--accent-color); 
+            font-size: 0.95em;
+        }
+
+        .start-icon {
+            font-size: 4em;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            body { padding: 15px; }
+            h1 { font-size: 2em; margin-bottom: 30px; }
+            .question-text { font-size: 1.4em; margin-bottom: 20px; }
+            .options label { font-size: 1.2em; padding: 12px 10px; }
+            .action-btn { font-size: 1.2em; padding: 15px; margin-top: 25px; }
+            #result-text { font-size: 1.6em; }
+            #result-advice { font-size: 1.1em; }
+            .options { flex-direction: column; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1><i class="fas fa-brain" style="margin-right: 15px;"></i>기억력 자가진단 (SMCQ)</h1>
+    <h1 style="font-size: 1.5em; margin-top: -20px; color: #666; font-weight: 400;">주관적 기억감퇴 평가 설문</h1>
+
+    <div id="test-content">
+        </div>
+
+    <script>
+        // SMCQ 14문항 (한국치매협회 등에서 제시된 표준 문항 기반)
+        // '예'라고 답할 경우 1점, '아니오'라고 답할 경우 0점 부여
+        const questions = [
+            { id: 1, text: "당신은 스스로 기억력에 문제가 있다고 생각하십니까?" },
+            { id: 2, text: "당신의 기억력은 10년 전에 비해 저하되었다고 생각하십니까?" },
+            { id: 3, text: "당신의 기억력이 같은 또래의 다른 사람들에 비해 나쁘다고 생각하십니까?" },
+            { id: 4, text: "기억력 저하로 인해 일상생활에 불편을 느끼십니까?" },
+            { id: 5, text: "최근에 일어난 일(몇 시간 전)을 기억하는 것이 어렵습니까?" },
+            { id: 6, text: "며칠 전에 나눈 대화 내용을 기억하기 어렵습니까?" },
+            { id: 7, text: "며칠 전에 한 약속을 기억하기 어렵습니까?" },
+            { id: 8, text: "친한 사람(자녀, 손주 등)의 이름을 기억하기 어렵습니까?" },
+            { id: 9, text: "물건 둔 곳을 기억하기 어렵습니까?" },
+            { id: 10, text: "이전에 비해 물건을 자주 잃어버립니까?" },
+            { id: 11, text: "집 근처에서 길을 잃은 적이 있습니까?" },
+            { id: 12, text: "가게에서 2~3가지 물건을 사려고 할 때, 물건 이름을 기억하기 어렵습니까?" },
+            { id: 13, text: "가스불이나 전기불 끄는 것을 기억하기 어렵습니까?" },
+            { id: 14, text: "자주 사용하는 전화번호(자신 혹은 자녀의 집)를 기억하기 어렵습니까?" }
+        ];
+
+        let currentQuestionIndex = -1; // -1: 시작 전
+        let answers = {};
+        const testContent = document.getElementById('test-content');
+
+        // 시작 화면 표시
+        function showStartScreen() {
+            testContent.classList.add('fade-in');
+            testContent.innerHTML = `
+                <div>
+                    <i class="fas fa-notes-medical start-icon"></i>
+                    <p class="question-text" style="text-align: center; color: var(--primary-color);">
+                        <span style="font-weight: 700;">주관적 기억감퇴 자가진단</span><br>
+                        14가지 질문에 '예' 또는 '아니오'로 답해 주시면 됩니다.
+                        <br><br>
+                        이 검사는 참고용이며, 정확한 진단은 전문의와 상담하세요.
+                    </p>
+                </div>
+                <button class="action-btn" onclick="animateAndStartTest()">
+                    <i class="fas fa-play-circle" style="margin-right: 10px;"></i>검사 시작하기
+                </button>
+            `;
+        }
+
+        // 애니메이션 후 테스트 시작
+        function animateAndStartTest() {
+            testContent.classList.remove('fade-in');
+            testContent.classList.add('fade-out');
+            setTimeout(() => {
+                currentQuestionIndex = 0;
+                renderQuestion();
+            }, 500);
+        }
+
+        // 질문 화면 렌더링
+        function renderQuestion() {
+            testContent.classList.remove('fade-out');
+            testContent.classList.add('fade-in');
+
+            if (currentQuestionIndex >= questions.length) {
+                calculateResult();
+                return;
+            }
+
+            const q = questions[currentQuestionIndex];
+            const qNum = currentQuestionIndex + 1;
+            
+            // 답변 옵션: '예'는 1점, '아니오'는 0점
+            const optionsData = [
+                { text: "예 (1점)", value: 1 },
+                { text: "아니오 (0점)", value: 0 }
+            ];
+
+            let optionsHTML = '';
+            optionsData.forEach(option => {
+                const checked = answers[q.id] === option.value ? 'checked' : '';
+                optionsHTML += `
+                    <label>
+                        <input type="radio" name="q${q.id}" value="${option.value}" ${checked} onclick="enableNextButton()">
+                        <span>${option.text}</span>
+                    </label>
+                `;
+            });
+
+            const nextBtnText = (qNum === questions.length) ? '내 결과 확인하기' : '다음 질문으로';
+            const btnDisabled = answers[q.id] === undefined ? 'disabled' : '';
+            
+            testContent.innerHTML = `
+                <div>
+                    <p class="question-meta"><i class="fas fa-question-circle"></i> 질문 ${qNum} / ${questions.length}</p>
+                    <p class="question-text">${q.text}</p>
+                    <div class="options" onchange="saveAnswer(event)">
+                        ${optionsHTML}
+                    </div>
+                </div>
+                <button id="next-btn" class="action-btn" onclick="animateAndNextQuestion()" ${btnDisabled}>
+                    ${nextBtnText === '다음 질문으로' ? '<i class="fas fa-arrow-right" style="margin-right: 10px;"></i>' : '<i class="fas fa-check-circle" style="margin-right: 10px;"></i>'}
+                    ${nextBtnText}
+                </button>
+            `;
+        }
+        
+        // 다음 버튼 활성화
+        function enableNextButton() {
+            document.getElementById('next-btn').disabled = false;
+        }
+
+        // 답변 저장
+        function saveAnswer(event) {
+            const radio = event.target;
+            if (radio.type === 'radio') {
+                const qId = questions[currentQuestionIndex].id;
+                answers[qId] = parseInt(radio.value, 10);
+            }
+        }
+        
+        // 애니메이션 후 다음 질문으로 이동
+        function animateAndNextQuestion() {
+            if (answers[questions[currentQuestionIndex].id] === undefined) {
+                alert("답변을 선택해 주세요.");
+                return;
+            }
+            testContent.classList.remove('fade-in');
+            testContent.classList.add('fade-out');
+            setTimeout(() => {
+                currentQuestionIndex++;
+                renderQuestion();
+            }, 500);
+        }
+
+        // 결과 계산 및 표시 (6점 이상 시 인지저하 의심 기준으로 안내)
+        function calculateResult() {
+            testContent.classList.remove('fade-out');
+            testContent.classList.add('fade-in');
+
+            let totalScore = 0;
+            Object.values(answers).forEach(score => {
+                totalScore += score;
+            });
+
+            let diagnosis = "";
+            let advice = "";
+            let resultIconClass = "";
+            let resultColorClass = "";
+            const maxScore = questions.length; // 총 14점 만점
+
+            // 6점 이상 고위험군일 경우 추가되는 상세 정보
+            const centerAdviceText = `
+                <br>
+                <strong style="color: var(--primary-color);">📢 [치매안심센터 검사비 지원 정보]</strong>
+                <div class="center-advice-box">
+                - 치매안심센터는 주로 **선별검사(스크리닝)**를 진행하며, 이상 소견 시 협약 병원으로 연계됩니다.<br>
+                - 병원 연계 시에도 **SNSB 같은 비급여 정밀 검사는 전액 무료 지원이 어렵습니다.**<br>
+                - 검사비 지원은 **기준 중위소득 120% 이하**인 대상자에게 **급여 항목의 본인 부담금 일부**만 상한액 내에서 지원됩니다. 방문 전 지원 조건을 꼭 확인하세요.
+                </div>
+            `;
+
+
+            if (totalScore <= 5) {
+                diagnosis = "🟢 양호: 주관적 기억력 저하 위험이 낮은 편입니다.";
+                advice = "스스로 느끼는 기억력 저하 정도가 낮습니다. 현재와 같이 건강한 생활 습관(규칙적인 운동, 두뇌 활동)을 유지해 주세요. 단, 기억력은 나이가 들면 자연스럽게 변하니 지속적인 관심이 필요합니다.";
+                resultIconClass = "far fa-grin-beam";
+                resultColorClass = "var(--success-color)";
+            } else if (totalScore <= 8) {
+                diagnosis = "🟡 주의: 주관적 기억력 저하가 관찰됩니다.";
+                advice = `
+                    스스로 일상생활에서의 기억력 문제를 느끼고 계십니다. 이러한 **주관적 기억감퇴(SMC)**는 객관적 검사에서는 정상으로 나올 수 있지만, **경도인지장애(MCI)**로 진행될 위험이 정상인보다 높다고 알려져 있습니다. **가까운 치매안심센터(보건소)를 방문하여 정밀한 인지기능 검사를 무료로 받아보시길 권장합니다.**
+                    ${centerAdviceText}
+                `;
+                resultIconClass = "far fa-frown-open";
+                resultColorClass = "var(--warning-color)";
+            } else {
+                diagnosis = "🔴 위험: 인지 저하 위험이 매우 높은 편입니다. (6점 이상 시 인지저하 의심)";
+                advice = `
+                    기억력 저하로 일상생활에 상당한 불편을 느끼고 있을 가능성이 높습니다. 검사 결과만으로 진단할 수는 없지만, **이러한 주관적 기억감퇴(SMC)는 향후 치매로 발전할 가능성이 있습니다.** 건강을 위해 **반드시 지체 없이** 가까운 치매안심센터 또는 신경과/정신건강의학과를 방문하여 전문적인 진단과 상담을 받으셔야 합니다.
+                    ${centerAdviceText}
+                `;
+                resultIconClass = "far fa-sad-tear";
+                resultColorClass = "var(--danger-color)";
+            }
+            
+            testContent.innerHTML = `
+                <div id="result-container" style="border-color: ${resultColorClass};">
+                    <i class="${resultIconClass}" style="color: ${resultColorClass};"></i>
+                    <h2 style="color: var(--primary-color); font-size: 2em; margin-bottom: 20px; font-weight: 700;">진단 결과</h2>
+                    <p id="result-text" style="color: ${resultColorClass}">${diagnosis}</p>
+                    <p id="result-score">총 점수: ${totalScore}점 / ${maxScore}점 만점</p>
+                    <p id="result-advice">
+                        <strong style="color: ${resultColorClass};">📢 [전문가 조언]</strong><br>
+                        ${advice}
+                        <br><br>
+                        *이 검사 결과는 단순 참고용이며, 의학적 진단 결과를 대체할 수 없습니다.
+                    </p>
+                    <button class="action-btn result-btn-reload" onclick="window.location.reload()">
+                        <i class="fas fa-redo-alt" style="margin-right: 10px;"></i>다시 검사하기
+                    </button>
+                </div>
+            `;
+        }
+
+        // 페이지 로드 시 시작 화면 표시
+        window.onload = showStartScreen;
+    </script>
+
+</body>
+</html>
